@@ -107,7 +107,7 @@ outsourced labor, **never uploading confidential material**.
 | "sweep the vault" / "sasuke patrol" | run the sweep, summarize actions/gaps/failures in one paragraph |
 | "vault status" | read the status dashboard + scheduler state; must surface *failing* states |
 | "fill capsules N" | take top-N gaps by priority → run the RAG capsule pipeline → report |
-| "register new database" | add a registry entry (ask for raw location / readiness check / converter / llm flag) |
+| "register new database" | **first check whether an existing entry's recursive glob already covers it** (e.g. `books/**/*.epub` naturally covers new subfolders) — if covered, add nothing and just run the sweep; only add an entry when truly uncovered (ask for raw location / readiness check / converter / llm flag). Duplicate entries = double-processing risk |
 | "self-test" | run the fixture golden tests + dry-run, paste results |
 
 ## Hard-won pitfalls
@@ -118,3 +118,8 @@ outsourced labor, **never uploading confidential material**.
   the design; clear the backlog rather than silencing the report.
 - Windows: schedule via PowerShell `Register-ScheduledTask` (schtasks quoting breaks in
   git-bash); batch files need CRLF; pin full python paths to avoid store stubs.
+- **Archives are invisible to globs** — takeout/backup exports often arrive as one big zip;
+  extract before ingest (`zipfile.namelist()` lets you inventory without extracting), or an
+  entire batch stays dark. Real case: 201 ebooks hidden inside a 1.7 GB zip.
+- **A tail left by the per-run action fuse is normal** — hitting the per-sweep action cap
+  leaves a few items unconverted; the sweep is idempotent, run it once more. Not a failure.
